@@ -33,4 +33,4 @@ ENV FILE_MAX_AGE=3600
 ENV CLEANUP_INTERVAL=3600
 
 # 启动FastAPI服务
-CMD ["python", "api.py", "--host", "${HOST}", "--port", "${PORT}", "--model_dir", "${MODEL_DIR}"]
+CMD python api.py --host $HOST --port $PORT --model_dir $MODEL_DIR

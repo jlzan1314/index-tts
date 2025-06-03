@@ -20,16 +20,10 @@ sys.path.append(current_dir)
 sys.path.append(os.path.join(current_dir, "indextts"))
 
 from indextts.infer import IndexTTS
+from contextlib import asynccontextmanager
 
 # 创建输出目录
 os.makedirs("outputs/api", exist_ok=True)
-
-# 创建FastAPI应用
-app = FastAPI(
-    title="IndexTTS API",
-    description="语音合成API接口，基于IndexTTS模型",
-    version="1.0.0"
-)
 
 # 文件清理配置
 CLEANUP_INTERVAL = int(os.environ.get("CLEANUP_INTERVAL", 300))  # 清理间隔（秒）
@@ -89,13 +83,9 @@ def init_model(model_dir="checkpoints", use_cuda_kernel=True, is_fp16=True, devi
             raise e
     return tts
 
-# 请求模型
-class TTSRequest(BaseModel):
-    text: str
-    
-# 启动时初始化模型和清理线程
-@app.on_event("startup")
-async def startup_event():
+# 启动时初始化模型和清理线程，关闭时停止清理线程
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global cleanup_thread
     
     try:
@@ -109,11 +99,8 @@ async def startup_event():
             print(f">> 文件自动清理已启动，间隔: {CLEANUP_INTERVAL}秒，文件最大保留时间: {FILE_MAX_AGE}秒")
     except Exception as e:
         print(f"启动时初始化失败: {e}")
-
-# 关闭时停止清理线程
-@app.on_event("shutdown")
-async def shutdown_event():
-    global CLEANUP_ENABLED, cleanup_thread
+    
+    yield
     
     # 停止清理线程
     CLEANUP_ENABLED = False
@@ -126,6 +113,18 @@ async def shutdown_event():
     
     print(">> API服务已关闭")
 
+# 创建FastAPI应用
+app = FastAPI(
+    title="IndexTTS API",
+    description="语音合成API接口，基于IndexTTS模型",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# 请求模型
+class TTSRequest(BaseModel):
+    text: str
+    
 # 文本转语音接口 - JSON请求方式
 @app.post("/tts/json")
 async def text_to_speech_json(request: TTSRequest, background_tasks: BackgroundTasks):

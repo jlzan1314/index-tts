@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: indextts-api:latest
+    image: reg.cliveli.tech/jlzan1314/indextts-api:latest
     container_name: indextts-api
     restart: unless-stopped
     ports:
@@ -19,8 +19,8 @@ services:
       - MODEL_DIR=/app/checkpoints
       # 文件清理配置
       - CLEANUP_ENABLED=true
-      - FILE_MAX_AGE=3600
-      - CLEANUP_INTERVAL=3600
+      - FILE_MAX_AGE=60
+      - CLEANUP_INTERVAL=60
       # 可选：CUDA调试参数
       # - TORCH_USE_CUDA_DSA=1
       # - CUDA_LAUNCH_BLOCKING=1
