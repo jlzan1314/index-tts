@@ -9,6 +9,7 @@ checkpoints/*.vocab
 checkpoints/*.model
 checkpoints/.cache
 outputs/
+checkpoints/
 build/
 *.py[cod]
 *.egg-info/

@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  indextts-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: indextts-api:latest
+    container_name: indextts-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"  # 将容器的8000端口映射到主机的8000端口
+    volumes:
+      - ./checkpoints:/app/checkpoints  # 挂载模型目录
+      - ./outputs:/app/outputs  # 挂载输出目录
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MODEL_DIR=/app/checkpoints
+      # 文件清理配置
+      - CLEANUP_ENABLED=true
+      - FILE_MAX_AGE=3600
+      - CLEANUP_INTERVAL=3600
+      # 可选：CUDA调试参数
+      # - TORCH_USE_CUDA_DSA=1
+      # - CUDA_LAUNCH_BLOCKING=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

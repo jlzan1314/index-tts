@@ -36,6 +36,11 @@ class IndexTTS:
             use_cuda_kernel (None | bool): whether to use BigVGan custom fused activation CUDA kernel, only for CUDA device.
         """
         if device is not None:
+
+            print(torch.version.cuda)
+            print(torch.cuda.is_available())
+            print(torch.cuda.get_device_name(0)) # 假设您只有一个GPU
+
             self.device = device
             self.is_fp16 = False if device == "cpu" else is_fp16
             self.use_cuda_kernel = use_cuda_kernel is not None and use_cuda_kernel and device.startswith("cuda")
@@ -43,15 +48,18 @@ class IndexTTS:
             self.device = "cuda:0"
             self.is_fp16 = is_fp16
             self.use_cuda_kernel = use_cuda_kernel is None or use_cuda_kernel
+            print("step 1",self.is_fp16,"use_cuda_kernel",self.use_cuda_kernel)
         elif hasattr(torch, "mps") and torch.backends.mps.is_available():
             self.device = "mps"
             self.is_fp16 = False # Use float16 on MPS is overhead than float32
             self.use_cuda_kernel = False
+            print("step 2")
         else:
             self.device = "cpu"
             self.is_fp16 = False
             self.use_cuda_kernel = False
             print(">> Be patient, it may take a while to run in CPU mode.")
+            print("step 4")
 
         self.cfg = OmegaConf.load(cfg_path)
         self.model_dir = model_dir
@@ -663,8 +671,9 @@ class IndexTTS:
 if __name__ == "__main__":
     prompt_wav="test_data/input.wav"
     #text="晕 XUAN4 是 一 种 GAN3 觉"
-    #text='大家好，我现在正在bilibili 体验 ai 科技，说实话，来之前我绝对想不到！AI技术已经发展到这样匪夷所思的地步了！'
-    text="There is a vehicle arriving in dock number 7?"
+    text='大家好，我现在正在bilibili 体验 ai 科技，说实话，来之前我绝对想不到！AI技术已经发展到这样匪夷所思的地步了！'
+    #text="There is a vehicle arriving in dock number 7?"
 
-    tts = IndexTTS(cfg_path="checkpoints/config.yaml", model_dir="checkpoints", is_fp16=True, use_cuda_kernel=False)
+    tts = IndexTTS(cfg_path="checkpoints/config.yaml", model_dir="checkpoints", is_fp16=True, use_cuda_kernel=True,device="cuda:0")
     tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen.wav", verbose=True)
+    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen2.wav", verbose=True)

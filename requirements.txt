@@ -18,8 +18,13 @@ tensorboard==2.9.1
 omegaconf
 sentencepiece
 librosa
-gradio
+gradio==5.32.0
 tqdm
+
+fastapi~=0.115.8
+uvicorn>=0.27.0,<0.28.0
+pydantic~=2.10.6
+pydantic_settings~=2.7.1
 
 WeTextProcessing; platform_machine != "Darwin"
 wetext; platform_system == "Darwin"
