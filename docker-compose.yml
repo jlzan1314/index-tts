@@ -9,7 +9,7 @@ services:
     container_name: indextts-api
     restart: unless-stopped
     ports:
-      - "8000:8000"  # 将容器的8000端口映射到主机的8000端口
+      - "8010:8000"  # 将容器的8000端口映射到主机的8000端口
     volumes:
       - ./checkpoints:/app/checkpoints  # 挂载模型目录
       - ./outputs:/app/outputs  # 挂载输出目录
@@ -20,7 +20,7 @@ services:
       # 文件清理配置
       - CLEANUP_ENABLED=true
       - FILE_MAX_AGE=60
-      - CLEANUP_INTERVAL=60
+      - CLEANUP_INTERVAL=30
       # 可选：CUDA调试参数
       # - TORCH_USE_CUDA_DSA=1
       # - CUDA_LAUNCH_BLOCKING=1

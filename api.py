@@ -26,8 +26,8 @@ from contextlib import asynccontextmanager
 os.makedirs("outputs/api", exist_ok=True)
 
 # 文件清理配置
-CLEANUP_INTERVAL = int(os.environ.get("CLEANUP_INTERVAL", 300))  # 清理间隔（秒）
-FILE_MAX_AGE = int(os.environ.get("FILE_MAX_AGE", 300))  # 文件最大保留时间（秒）
+CLEANUP_INTERVAL = int(os.environ.get("CLEANUP_INTERVAL", 30))  # 清理间隔（秒）
+FILE_MAX_AGE = int(os.environ.get("FILE_MAX_AGE", 60))  # 文件最大保留时间（秒）
 CLEANUP_ENABLED = os.environ.get("CLEANUP_ENABLED", "true").lower() in ("true", "1", "yes")  # 是否启用自动清理
 OUTPUT_DIR = "outputs/api"  # 输出目录
 
@@ -86,7 +86,7 @@ def init_model(model_dir="checkpoints", use_cuda_kernel=True, is_fp16=True, devi
 # 启动时初始化模型和清理线程，关闭时停止清理线程
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global cleanup_thread
+    global cleanup_thread, CLEANUP_ENABLED
     
     try:
         # 初始化模型
@@ -142,6 +142,40 @@ async def text_to_speech_json(request: TTSRequest, background_tasks: BackgroundT
         output_path = tts.infer(
             audio_prompt=audio_prompt,
             text=request.text,
+            output_path=output_filename,
+            verbose=False
+        )
+        
+        # 添加后台任务，在响应发送后删除文件（可选，根据配置决定）
+        if CLEANUP_ENABLED and FILE_MAX_AGE <= 0:
+            background_tasks.add_task(lambda: os.unlink(output_path) if os.path.exists(output_path) else None)
+        
+        # 返回生成的音频文件
+        return FileResponse(
+            path=output_path,
+            media_type="audio/wav",
+            filename=os.path.basename(output_path)
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"语音合成失败: {str(e)}")
+
+# 文本转语音接口 - GET请求方式，使用查询参数
+@app.get("/tts/gen")
+async def text_to_speech_get(text: str, background_tasks: BackgroundTasks):
+    if tts is None:
+        raise HTTPException(status_code=500, detail="TTS模型未初始化")
+    
+    try:
+        # 生成唯一文件名
+        output_filename = f"outputs/api/tts_{uuid.uuid4()}.wav"
+        
+        # 使用默认参考音频
+        audio_prompt = "test_data/input.wav"
+        
+        # 生成语音
+        output_path = tts.infer(
+            audio_prompt=audio_prompt,
+            text=text,
             output_path=output_filename,
             verbose=False
         )
