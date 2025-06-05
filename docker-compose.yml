@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: reg.cliveli.tech/jlzan1314/indextts-api:latest
+    image: indextts-api:latest
     container_name: indextts-api
     restart: unless-stopped
     ports:
