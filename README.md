@@ -1,12 +1,13 @@
 # 当前对比其他tts
 主要看重的是实时性，输出较快，还有中文支持较好，腾讯出品
+
 官方git仓库在：
 https://github.com/index-tts/index-tts
 
 # 环境
-系统： wsl2 中的ubuntu 20.04
-显卡： NVIDIA GeForce RTX 5090 D
-python： 3.10
+- 系统： wsl2 中的ubuntu 20.04
+- 显卡： NVIDIA GeForce RTX 5090 D
+- python： 3.10
 
 huggingface.co github.com 需要魔法访问
 # 安装步骤：
