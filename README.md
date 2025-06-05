@@ -1,5 +1,5 @@
 # 当前对比其他tts
-主要看重的是实时性，输出较快，还有中文支持较好，腾讯出品
+主要看重的是实时性，输出较快，还有中文支持较好，支持语音clone
 
 官方git仓库在：
 https://github.com/index-tts/index-tts
