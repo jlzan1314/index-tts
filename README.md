@@ -32,7 +32,7 @@ ffmpeg
 ```bash
 git clone https://github.com/jlzan1314/index-tts.git
 cd index-tts
-python venv .venv
+python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
