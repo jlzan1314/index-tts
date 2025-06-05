@@ -1,6 +1,8 @@
 # 当前对比其他tts
 主要看重的是实时性，输出较快，还有中文支持较好，支持语音clone
 
+本项目使用fastapi 封装接口为http方便项目调用
+
 官方git仓库在：
 https://github.com/index-tts/index-tts
 
